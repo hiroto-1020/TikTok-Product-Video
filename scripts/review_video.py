@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib_media import (ROOT, decode_mono, detect_cuts, grab_frame, loudness, onset_envelope, onset_peaks,  # noqa: E402
+from lib_media import (ROOT, TEMP, decode_mono, detect_cuts, grab_frame, loudness, onset_envelope, onset_peaks,  # noqa: E402
                        probe, rel, run, scene_scores, write_json)
 
 
@@ -50,7 +50,7 @@ def main() -> None:
         sys.exit("MP4 が見つかりません（output/draft/ にレンダリングしてください）")
     path = path.resolve()
     od = path.parent / "review" / path.stem
-    fr = od / "_frames"
+    fr = TEMP / "review" / path.stem
     fr.mkdir(parents=True, exist_ok=True)
     checks: list[dict] = []
 

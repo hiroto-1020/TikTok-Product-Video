@@ -32,7 +32,7 @@ description: >
 ## ユーザーの確認ポイント（必ず止まる）
 
 - **STEP 4 の後**：A/B/C の代表静止画を見せて、選択（または混合・修正指示）を待つ。**選択前に完成 MP4 を作らない。**
-- **STEP 7 の後**：ドラフト MP4 と自己レビュー結果を見せて、承認または修正指示を待つ。**承認前に output/final/ へ書き出さない。**
+- **STEP 7 の後**：ドラフト MP4 と自己レビュー結果を見せて、承認または修正指示を待つ。**承認前に `output/final/final.mp4` を書き出さない。**
 
 ## フォルダ
 
@@ -46,8 +46,9 @@ description: >
 | `preview/storyboard/` | 代表静止画（`<案>/<シーン>.png`, `<案>_overview.png`, `index.html`）。`_src/<案>/` は静止画用 HyperFrames プロジェクト |
 | `video/` | 選ばれた案の HyperFrames プロジェクト（制作のたびに新規作成） |
 | `output/draft/` | ドラフト MP4 と `review/<名前>/`（機械チェック + 自己レビュー） |
-| `output/final/` | 承認済みの納品 MP4 |
+| `output/final/final.mp4` | 承認済みの納品 MP4（前の版は `final_<日時>.mp4` に自動退避） |
 | `archive/` | 過去の制作一式 |
+| `temp/` | 一時ファイル（スクリプトが自動で使う・消してよい） |
 | `remotion/` | 予備（HyperFrames より明確に適している場合のみ。`remotion/README.md`） |
 | `scripts/` | 補助スクリプト（下表） |
 
@@ -60,14 +61,14 @@ description: >
 | `node scripts/storyboard_stills.mjs --init` / `node scripts/storyboard_stills.mjs [X]` | 代表静止画プロジェクトの雛形作成 / HyperFrames snapshot で静止画化 |
 | `node scripts/new_video.mjs --option X` / `--sync` | 選ばれた案の HyperFrames プロジェクト `video/` を作成 / 素材の再コピー |
 | `python3 scripts/review_video.py <mp4>` | 書き出し後の機械チェックと確認用シート |
-| `bash scripts/finalize.sh <mp4> <名前>` | 承認済み MP4 をラウドネス調整して `output/final/` へ |
+| `bash scripts/finalize.sh <mp4>` | 承認済み MP4 をラウドネス調整して `output/final/final.mp4` へ |
 | `bash scripts/archive.sh <名前>` | 1 本分を `archive/` に保管して作業フォルダを初期化 |
 
 ---
 
 ## STEP 0 — 準備（毎回・黙って実行）
 
-1. `bash scripts/setup.sh` を実行（クラウドの新しいセッションでは Chrome・フォント・npm が無いので必ず）。✗ があれば解決してから進む。
+1. `bash scripts/setup.sh` を実行（フォルダ構成・brief/planning の雛形・Chrome・フォント・npm・コミット前チェックを用意。何度実行しても安全）。✗ があれば解決してから進む。
 2. HyperFrames Skills の鮮度確認：`npx hyperframes skills check`。古ければ `bash scripts/setup.sh --update` を実行し、
    `.claude/skills/tiktok-shop-video/` が消えていないか確認（消えたら `git checkout -- .claude/skills/tiktok-shop-video`）。
    HyperFrames CLI の更新内容（旧→新バージョン）は報告に一言含める。
@@ -126,10 +127,9 @@ HyperFrames の review loop（`/hyperframes` → `references/review-loop.md` § 
 4. 自分で `A_overview.png` などと `_checks/*_safezone.png` を見て確認：商品が歪んでいない／文字がセーフゾーン内／読める大きさ／1 行の不自然な改行（1 文字だけの行）なし／コントラスト。直して再実行。
 5. **ユーザーに提示して止まる**：
    - 各案の 1 行コンセプト、尺・BPM、シーン数、フックの内容、おすすめ案と理由
-   - 画像：`preview/storyboard/A_overview.png`, `B_overview.png`, `C_overview.png`（SendUserFile が使えるなら 3 枚を送る）、一覧ページ `preview/storyboard/index.html`
+   - 画像：`preview/storyboard/A_overview.png`, `B_overview.png`, `C_overview.png`（ローカルのファイルとして案内。SendUserFile が使えるなら 3 枚を送る）、一覧ページ `preview/storyboard/index.html`
    - 事実確認で使えなかった情報・確認したいこと
    - 質問：「A / B / C のどれで作りますか？（混ぜる・直すも可）」
-   - 変更をコミットして push（ユーザーが GitHub やアプリで画像を見られるように）。
 
 ## STEP 5 — 選ばれた案で制作（HyperFrames）
 
@@ -151,7 +151,7 @@ HyperFrames の review loop（`/hyperframes` → `references/review-loop.md` § 
 6. 途中確認：`cd video && npx hyperframes lint`、仕上げに `npx hyperframes check`（エラー 0 にする）、
    `npx hyperframes snapshot video --at <各シーン中点>` で見た目確認。
 7. ドラフト書き出し：`cd video && npx hyperframes render --quality looks --output ../output/draft/<商品名>_v1.mp4`（修正ごとに v2, v3…）。
-   ローカル環境でユーザーが見られる場合は `npx hyperframes preview --background` の Studio URL も案内してよい。クラウドではドラフト MP4 がプレビューの代わり。
+   ローカル環境でユーザーが見られる場合は `npx hyperframes preview --background` の Studio URL も案内してよい。ドラフト MP4 もプレビューとして案内する。
 
 ## STEP 6 — 音楽・効果音・映像を共通の Beat Grid で設計
 
@@ -182,15 +182,16 @@ HyperFrames の review loop（`/hyperframes` → `references/review-loop.md` § 
    | CTA | 最後に何をすればいいか明確か・セーフゾーン内・誇張なし |
    | 事実確認 | 画面上の全テキストを facts.md の ID と照合（表にする）・絶対ルール 1〜8 の違反なし |
 3. △/× があれば直して再レンダー（v2…）→ 再レビュー。機械チェックの FAIL は必ず解消。
-4. **ユーザーに提示して止まる**：ドラフト MP4 のパス（SendUserFile が使えるなら送る）、自己レビューの要約、残る確認事項。コミットして push。
+4. **ユーザーに提示して止まる**：ドラフト MP4 のパス（SendUserFile が使えるなら送る）、自己レビューの要約、残る確認事項。
 5. 承認されたら：`cd video && npx hyperframes render --quality delivery --output ../output/draft/<商品名>_delivery.mp4` →
-   `bash scripts/finalize.sh output/draft/<商品名>_delivery.mp4 <商品名>` → `python3 scripts/review_video.py output/final/<商品名>.mp4` で最終確認 → コミット・push。
+   `bash scripts/finalize.sh output/draft/<商品名>_delivery.mp4` → **`output/final/final.mp4`** → `python3 scripts/review_video.py output/final/final.mp4` で最終確認。
+   完成の案内は「`output/final/final.mp4` ができました」と場所をはっきり伝える。
 6. 納品時の一言：投稿時はキャプションに「#PR」等の広告表記を入れること（ステルスマーケティング規制）を案内する。
    HyperFrames の recipe 保存（`/hyperframes` → `review-loop.md` § 4）は、ユーザーが同じ型を量産したいと言ったときに提案。
 
 ## 次の商品へ
 
-ユーザーが「次の商品」「保管して」と言ったら `bash scripts/archive.sh <商品名の英数字>` → コミット・push。
+ユーザーが「次の商品」「保管して」と言ったら `bash scripts/archive.sh <商品名の英数字>`（`output/final/final.mp4` も一緒に保管され、次の商品で上書きされない）。
 `input/current/` と `planning/` がテンプレートに戻るので、ユーザーは新しい素材を入れて brief.md を書けばよい。
 
 ## Remotion を使う条件
@@ -199,7 +200,16 @@ HyperFrames の review loop（`/hyperframes` → `references/review-loop.md` § 
 同じ型の大量バリエーションを React のデータ駆動で量産する、既存の Remotion 資産を使う、Remotion 固有ライブラリが必要。
 仕様・STEP・Beat Grid・絶対ルールは同じ。既存 Remotion 作品の HyperFrames 化は `/remotion-to-hyperframes`。
 
-## コミットのルール
+## Git のルール（ローカル運用）
 
-STEP 4 提示時・ドラフト提示時・納品時にコミットして push（作業ブランチへ）。`node_modules`・フォント実体・素材コピーは `.gitignore` 済み。
-大きすぎる動画（1 ファイル 90MB 超）はコミットしない。
+**Git に入れるのは「仕組み」だけ**：`scripts/`・`templates/`（brief.md の雛形含む）・`.claude/`（Skills・設定・フック）・
+`CLAUDE.md`・`README.md`・`package.json`・`assets/fonts/fonts.css`・`assets/vendor/`・`remotion/` の設定とソース・`.gitignore`・`.githooks/`・`.env.example`。
+
+**Git に入れないもの（ローカルのみ・`.gitignore` 済み）**：`input/current/` の全部（brief.md・商品画像/動画・参考動画・音源）、`planning/` の中身、
+`preview/`、`output/`（ドラフト・final.mp4）、`temp/`、`renders/`、`snapshots/`、`video/`（商品ごとの HyperFrames プロジェクト）、`archive/`、フォント実体、すべての動画ファイル。
+
+**秘密情報（APIキー・トークン・認証情報）は絶対にコミットしない**：使う場合は `.env`（Git 管理外）にだけ書き、コード・ドキュメント・ログ・コミットメッセージに値を書かない。
+`git add -f` / `--no-verify` は使わない。`.githooks/pre-commit` が素材・動画・5MB 超・秘密情報らしき文字列のコミットを止める。
+
+- 制作作業（STEP 1〜7）ではコミットしない。成果物はローカルのファイルとして案内する。
+- 仕組み（スクリプト・テンプレート・Skill）を直したときだけ、ユーザーに確認してからコミットする。

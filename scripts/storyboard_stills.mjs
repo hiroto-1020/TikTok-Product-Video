@@ -23,6 +23,7 @@ import { ROOT, fontFaceBlock, npx, parseClips, readJSON, rel, syncAssets, writeI
 
 const SB = join(ROOT, "preview/storyboard");
 const SRC = join(SB, "_src");
+const TMP = join(ROOT, "temp", "storyboard"); // 一時ファイル（Git 管理外）
 const plan = readJSON(join(ROOT, "planning/shot-plan.json"), { options: [] });
 const args = process.argv.slice(2);
 
@@ -124,7 +125,7 @@ function render(ids) {
       console.error(`skip ${id}: id="${id}-01" 形式の <section> が見つかりません`);
       continue;
     }
-    const tmp = join(SB, "_tmp", id);
+    const tmp = join(TMP, id);
     rmSync(tmp, { recursive: true, force: true });
     const at = clips.map((c) => (c.start + c.duration / 2).toFixed(3)).join(",");
     console.log(`▶ ${id}: ${clips.length} scenes → hyperframes snapshot`);
@@ -154,7 +155,7 @@ function render(ids) {
     results[id] = items;
     console.log(`  ✓ ${items.length} stills → ${rel(outDir)}/, ${rel(join(SB, `${id}_overview.png`))}`);
   }
-  rmSync(join(SB, "_tmp"), { recursive: true, force: true });
+  rmSync(TMP, { recursive: true, force: true });
   gallery();
   return results;
 }

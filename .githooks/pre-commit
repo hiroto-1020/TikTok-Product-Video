@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# コミット前の安全装置（scripts/setup.sh が git config core.hooksPath .githooks を設定）
+#  1. 商品素材・プレビュー・出力・一時ファイルなどローカル専用の場所のファイル
+#  2. 動画ファイル / 大きいファイル（.claude/skills の公式同梱物は除く）
+#  3. 秘密情報らしきファイル名・中身（APIキー・トークン・秘密鍵）
+# が含まれていたらコミットを止める。
+set -uo pipefail
+FAIL=0
+block() { printf '\033[31m✗ %s\033[0m\n' "$*" >&2; FAIL=1; }
+
+STAGED="$(git diff --cached --name-only --diff-filter=ACMR)"
+[ -z "$STAGED" ] && exit 0
+
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  case "$f" in
+    */.gitkeep|.gitkeep) continue ;;
+    input/current/*|planning/*|preview/*|output/*|temp/*|tmp/*|archive/*|video/*|*/renders/*|renders/*|*/snapshots/*)
+      block "ローカル専用の場所のファイル: $f" ;;
+  esac
+  case "$f" in
+    .claude/skills/*) ;;
+    *.mp4|*.mov|*.m4v|*.webm|*.mkv|*.avi|*.MP4|*.MOV)
+      block "動画ファイル: $f" ;;
+  esac
+  case "$f" in
+    .env.example) ;;
+    .env|.env.*|*.env|*.pem|*.key|*.p12|*.pfx|*credentials*|*secret*|*.token|token.json|.npmrc|.netrc|.claude/settings.local.json)
+      block "秘密情報の可能性があるファイル: $f" ;;
+  esac
+  if [ -f "$f" ]; then
+    case "$f" in .claude/skills/*|*package-lock.json) ;; *)
+      SIZE=$(wc -c <"$f")
+      if [ "$SIZE" -gt 5242880 ]; then block "5MB を超えるファイル: $f ($((SIZE / 1048576))MB)"; fi ;;
+    esac
+  fi
+done <<<"$STAGED"
+
+# 追加される行の中身から秘密情報らしき文字列を探す
+PATTERN='(sk-ant-[A-Za-z0-9_-]{20,}|sk-(proj-)?[A-Za-z0-9_-]{32,}|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AIza[0-9A-Za-z_-]{35}|xox[abposr]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|(HEYGEN|GEMINI|GOOGLE|OPENAI|ANTHROPIC|ELEVENLABS|FIGMA|AWS_SECRET)[A-Z_]*(API_)?(KEY|TOKEN|SECRET)[A-Z_]*["'"'"']?[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9_./+-]{16,})'
+while IFS= read -r f; do
+  [ -z "$f" ] && continue
+  case "$f" in .claude/skills/*|*package-lock.json) continue ;; esac
+  if git diff --cached -U0 -- "$f" | grep -E '^\+[^+]' | grep -Eq "$PATTERN"; then
+    # 値そのものは表示しない（ターミナルやログに秘密を残さないため）
+    block "秘密情報（APIキー/トークン/秘密鍵）らしき文字列: $f"
+  fi
+done <<<"$STAGED"
+
+if [ "$FAIL" -ne 0 ]; then
+  echo >&2
+  echo "コミットを中止しました。上のファイルは Git 管理外（ローカルのみ）で扱ってください。" >&2
+  echo "  取り消し: git restore --staged <ファイル>" >&2
+  exit 1
+fi
+exit 0

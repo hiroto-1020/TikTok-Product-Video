@@ -15,7 +15,7 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib_media import ROOT, run, tile_sheet  # noqa: E402
+from lib_media import ROOT, TEMP, run, tile_sheet  # noqa: E402
 
 DEFAULT_SAFE = {"top": 160, "bottom": 480, "left": 60, "right": 140}
 
@@ -48,7 +48,8 @@ def main() -> None:
     ap.add_argument("items", nargs="+", help="path::label")
     a = ap.parse_args()
     frames, labels = [], []
-    tmp = Path(tempfile.mkdtemp())
+    TEMP.mkdir(parents=True, exist_ok=True)
+    tmp = Path(tempfile.mkdtemp(dir=TEMP, prefix="sheet_"))
     try:
         for i, it in enumerate(a.items):
             path, _, label = it.partition("::")

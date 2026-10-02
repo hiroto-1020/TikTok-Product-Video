@@ -10,6 +10,16 @@
       "Bash(ffprobe:*)",
       "Bash(npm install:*)",
       "Bash(npm run:*)"
+    ],
+    "deny": [
+      "Bash(git add -f:*)",
+      "Bash(git add --force:*)",
+      "Bash(git commit --no-verify:*)",
+      "Bash(git commit -n:*)",
+      "Read(./.env)",
+      "Read(**/.env)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)"
     ]
   },
   "hooks": {

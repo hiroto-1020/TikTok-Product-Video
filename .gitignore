@@ -1,38 +1,126 @@
-# 依存・キャッシュ
+# =====================================================================
+#  Git 管理するもの : 仕組み（scripts / templates / .claude / CLAUDE.md /
+#                     HyperFrames・Remotion の設定 / assets/fonts/fonts.css / assets/vendor）
+#  Git 管理しないもの: 商品ごとの素材・中間生成物・動画・秘密情報（すべてローカルのみ）
+#  フォルダ構造だけは .gitkeep で残す（中身は無視）
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# 1. 秘密情報（APIキー・トークン・認証情報）— 絶対にコミットしない
+# ---------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.env
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+id_rsa*
+id_ed25519*
+*.secret
+*.secrets
+secrets.*
+secret.*
+credentials*
+*credentials*.json
+service-account*.json
+*-sa.json
+token.json
+*.token
+.npmrc
+.netrc
+.pypirc
+.heygen/
+.aws/
+.gcloud/
+.config/gcloud/
+.claude/settings.local.json
+.claude/**/*.local.json
+
+# ---------------------------------------------------------------------
+# 2. 商品ごとの入力（ローカルのみ）
+#    input/current/ 以下は brief.md も含めてすべて無視（.gitkeep だけ残す）
+#    brief.md の雛形は templates/brief.md（Git 管理）
+# ---------------------------------------------------------------------
+input/current/**
+!input/current/**/
+!input/current/**/.gitkeep
+
+# ---------------------------------------------------------------------
+# 3. 企画・解析の生成物（商品ごと・ローカルのみ。雛形は templates/planning/）
+# ---------------------------------------------------------------------
+planning/**
+!planning/**/
+!planning/**/.gitkeep
+
+# ---------------------------------------------------------------------
+# 4. プレビュー・出力・作業中ファイル（ローカルのみ）
+# ---------------------------------------------------------------------
+preview/**
+!preview/**/
+!preview/**/.gitkeep
+output/**
+!output/**/
+!output/**/.gitkeep
+temp/**
+!temp/.gitkeep
+tmp/
+renders/
+**/renders/
+snapshots/
+**/snapshots/
+**/_tmp/
+**/_frames/
+
+# 商品ごとの HyperFrames プロジェクト（制作のたびに新規作成・素材を含む）
+video/
+
+# 保管庫（素材・動画を含む）
+archive/**
+!archive/.gitkeep
+
+# ---------------------------------------------------------------------
+# 5. 動画ファイルはどこにあってもコミットしない（公式 Skills 同梱物のみ例外）
+# ---------------------------------------------------------------------
+*.mp4
+*.mov
+*.m4v
+*.webm
+*.mkv
+*.avi
+*.mxf
+*.prores
+!.claude/skills/**/*.mp4
+!.claude/skills/**/*.mov
+!.claude/skills/**/*.webm
+
+# ---------------------------------------------------------------------
+# 6. 依存・キャッシュ・OS ファイル
+# ---------------------------------------------------------------------
 node_modules/
+**/node_modules/
 .hyperframes/
 **/.hyperframes/
-**/node_modules/
-.DS_Store
-*.part
-
-# フォント実体は setup.sh が取得する（fonts.css は管理対象）
-assets/fonts/*.ttf
-assets/fonts/*.otf
-**/assets/fonts/*.ttf
-
-# HyperFrames 作業ファイル
-video/renders/
-video/snapshots/
-preview/storyboard/_src/*/renders/
-preview/storyboard/_src/*/snapshots/
-preview/storyboard/_tmp/
-output/draft/review/_frames/
-
-# Remotion
-remotion/out/
-remotion/build/
-
-# プロジェクト内の素材コピー（scripts が input/ と assets/ から自動で再コピーする）
-preview/storyboard/_src/*/assets/
-video/assets/product/
-video/assets/audio/
-video/assets/fonts/
-video/assets/vendor/
-video/assets/sfx/
-
-# 保管物の中の再取得できるコピー
-archive/**/_src/*/assets/
-archive/**/video/assets/
 __pycache__/
 *.pyc
+*.part
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# フォント実体は scripts/setup.sh が取得する（fonts.css は管理対象）
+assets/fonts/*.ttf
+assets/fonts/*.otf
+assets/fonts/*.woff
+assets/fonts/*.woff2
+
+# Remotion の出力
+remotion/out/
+remotion/build/
+remotion/public/**
+!remotion/public/.gitkeep

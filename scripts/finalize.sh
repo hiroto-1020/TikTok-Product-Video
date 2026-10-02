@@ -1,16 +1,23 @@
 #!/usr/bin/env bash
-# 承認済みの MP4 を納品形式に整えて output/final/ に置く。
-#   bash scripts/finalize.sh <入力.mp4> <名前>
-#   → output/final/<名前>.mp4
+# 承認済みの MP4 を納品形式に整えて output/final/final.mp4 に置く。
+#   bash scripts/finalize.sh <入力.mp4>            → output/final/final.mp4
+#   bash scripts/finalize.sh <入力.mp4> <名前>     → output/final/<名前>.mp4（別名が必要な場合のみ）
+#     ・既存の final.mp4 は上書きせず final_<日時>.mp4 に退避
 #     ・映像は再エンコードしない（-c:v copy）
-#     ・音声があれば TikTok 向けラウドネス（-14 LUFS / TP -1.5 dB）に正規化して AAC 192k
+#     ・音声があれば TikTok 向けラウドネス（-14 LUFS / ピーク -1.5 dB 以下）に調整して AAC 192k
 #     ・moov を先頭へ（faststart）
+# output/ は Git 管理外（ローカルのみ）。
 set -euo pipefail
 cd "$(dirname "$0")/.."
-IN="${1:?usage: bash scripts/finalize.sh <input.mp4> <name>}"
-NAME="${2:?usage: bash scripts/finalize.sh <input.mp4> <name>}"
+IN="${1:?usage: bash scripts/finalize.sh <input.mp4> [name]}"
+NAME="${2:-final}"
 OUT="output/final/${NAME%.mp4}.mp4"
 mkdir -p output/final
+if [ -e "$OUT" ]; then
+  BAK="output/final/${NAME%.mp4}_$(date +%Y%m%d_%H%M%S).mp4"
+  mv "$OUT" "$BAK"
+  echo "既存の $OUT を $BAK に退避しました"
+fi
 DUR="$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$IN")"
 VDUR="$(ffprobe -v error -select_streams v:0 -show_entries stream=duration -of csv=p=0 "$IN")"
 [ -n "$VDUR" ] && [ "$VDUR" != "N/A" ] && DUR="$VDUR"

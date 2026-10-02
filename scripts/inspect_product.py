@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib_media import (IMAGE_EXT, ROOT, VIDEO_EXT, grab_frame, list_files, palette, probe, rel, run,  # noqa: E402
+from lib_media import (IMAGE_EXT, ROOT, TEMP, VIDEO_EXT, grab_frame, list_files, palette, probe, rel, run,  # noqa: E402
                        tile_sheet, write_json)
 
 PROD = ROOT / "input/current/product"
@@ -43,7 +43,7 @@ def main() -> None:
     groups = {"images": IMAGE_EXT, "videos": VIDEO_EXT, "logo": IMAGE_EXT | {".svg"}}
     data: dict = {}
     frames, labels = [], []
-    tmp = OUT / "_tmp_product"
+    tmp = TEMP / "product"
     tmp.mkdir(parents=True, exist_ok=True)
     for g, exts in groups.items():
         items = []

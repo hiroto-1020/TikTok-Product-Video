@@ -18,6 +18,30 @@ warn() { printf "  \033[33m!\033[0m %s\n" "$*"; }
 fail() { printf "  \033[31m✗\033[0m %s\n" "$*"; }
 STATUS=0
 
+echo "== 0. フォルダ構成・Git の安全設定 =="
+# 商品素材・企画・プレビュー・出力・一時ファイルはローカル専用（.gitignore 済み）。無ければ作る。
+for d in input/current/product/images input/current/product/videos input/current/product/logo \
+  input/current/reference/videos input/current/reference/images input/current/audio \
+  planning/reference-analysis preview/storyboard output/draft output/final temp archive; do
+  mkdir -p "$d"
+done
+if [ ! -f input/current/brief.md ]; then cp templates/brief.md input/current/brief.md && ok "input/current/brief.md をテンプレートから作成"; fi
+for f in templates/planning/*; do
+  [ -f "planning/$(basename "$f")" ] || cp "$f" "planning/$(basename "$f")"
+done
+ok "作業フォルダ（input / planning / preview / output / temp / archive）"
+if git rev-parse --git-dir >/dev/null 2>&1; then
+  if [ "$(git config --get core.hooksPath || true)" != ".githooks" ]; then
+    git config core.hooksPath .githooks && ok "コミット前チェック（.githooks/pre-commit）を有効化"
+  else
+    ok "コミット前チェック有効（素材・動画・秘密情報のコミットを防止）"
+  fi
+  LEAK="$(git ls-files -- input/current planning preview output temp archive video | grep -v '\.gitkeep$' || true)"
+  SECRET="$(git ls-files | grep -E '(^|/)\.env($|\.)|\.pem$|\.key$|credentials|settings\.local\.json' | grep -v '\.env\.example$' || true)"
+  if [ -n "$LEAK" ]; then warn "ローカル専用のはずのファイルが Git 管理されています:"; printf '      %s\n' $LEAK; fi
+  if [ -n "$SECRET" ]; then fail "秘密情報の可能性があるファイルが Git 管理されています:"; printf '      %s\n' $SECRET; STATUS=1; fi
+fi
+
 echo "== 1. 基本ツール =="
 if command -v node >/dev/null 2>&1; then
   NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]')"

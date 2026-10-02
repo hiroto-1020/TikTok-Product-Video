@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib_media import (IMAGE_EXT, ROOT, VIDEO_EXT, decode_mono, detect_cuts, estimate_tempo,  # noqa: E402
+from lib_media import (IMAGE_EXT, ROOT, TEMP, VIDEO_EXT, decode_mono, detect_cuts, estimate_tempo,  # noqa: E402
                        grab_frame, list_files, loudness, onset_envelope, onset_peaks, palette, probe, rel,
                        run, scene_scores, tile_sheet, track_beats, write_json)
 
@@ -47,8 +47,8 @@ def analyze_video(path: Path, threshold: float | None) -> dict:
     name = path.stem
     od = OUT / name
     (od / "shots").mkdir(parents=True, exist_ok=True)
-    tmp = od / "_tmp"
-    tmp.mkdir(exist_ok=True)
+    tmp = TEMP / "reference" / name
+    tmp.mkdir(parents=True, exist_ok=True)
     info = probe(path)
     dur = info["duration"]
     print(f"▶ {path.name}: {info.get('width')}x{info.get('height')} {info.get('fps')}fps {dur:.2f}s")

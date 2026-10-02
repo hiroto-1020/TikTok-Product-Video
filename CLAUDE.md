@@ -9,7 +9,7 @@ TikTok Shop アフィリエイト用の縦型商品紹介動画（**1080×1920 /
 |---|---|
 | 「この商品で動画案を作って」「動画案」 | `/tiktok-shop-video` の STEP 0〜4 → A/B/C の代表静止画を見せて **止まる** |
 | 「Bで作って」「Aの〜を直してCで」 | STEP 5〜7 → ドラフト MP4 と自己レビューを見せて **止まる** |
-| 「OK」「これで納品」 | 最終書き出し → `output/final/` |
+| 「OK」「これで納品」 | 最終書き出し → **`output/final/final.mp4`** |
 | 「ここを直して」 | 該当 STEP に戻って修正（レイアウト変更なら静止画から） |
 | 「次の商品」「保管して」 | `bash scripts/archive.sh <名前>` |
 
@@ -31,12 +31,19 @@ TikTok Shop アフィリエイト用の縦型商品紹介動画（**1080×1920 /
 - 医療・美容効果を断定しない。根拠のない「No.1」「最安」等も使わない。
 - 参考動画は「映像表現の文法」だけを参考にし、商品・ブランド・コピー・人物・固有の画はコピーしない。
 
+## Git と秘密情報（ローカル運用）
+
+- **Git 管理する**：ソースコード（`scripts/`）、HyperFrames/Remotion の設定、`templates/`（brief.md の雛形）、`.claude/`（Skills・設定）、`CLAUDE.md`、`README.md`。
+- **Git 管理しない（ローカルのみ）**：`input/current/`（brief.md・商品画像/動画・参考動画）、`planning/` の中身、`preview/`、`output/`、`temp/`、`renders/`、`video/`、`archive/`、動画ファイル全般。`.gitignore` と `.githooks/pre-commit` で防止済み。
+- **APIキー・トークン・認証情報は絶対にコミットしない。** 必要なら `.env`（Git 管理外、雛形は `.env.example`）に書く。`.env` の中身を読んだり表示したりしない。`git add -f` / `--no-verify` は使わない。
+- 制作作業ではコミットしない。仕組みを直したときだけ、ユーザーに確認してからコミットする。
+
 ## 技術メモ
 
-- 初回/新しいクラウドセッションでは最初に `bash scripts/setup.sh`（Chrome Headless Shell・日本語フォント・npm を用意）。
+- 作業の最初に `bash scripts/setup.sh`（フォルダ・雛形・Chrome Headless Shell・日本語フォント・npm・コミット前チェックを用意。何度実行しても安全）。
 - CDN（cdn.jsdelivr.net）はネットワークで遮断されることがある → GSAP は `assets/vendor/gsap.min.js` を使う（`scripts/new_video.mjs` が自動で置き換える）。
 - フォント実体は git 管理外。`assets/fonts/fonts.css` の @font-face をコンポジション内に書く（`new_video.mjs` が自動挿入）。
 - 新しいセッションで `video/` を再開するときは `node scripts/new_video.mjs --sync` で素材を再コピーしてから preview/render。
 - `video/CLAUDE.md` は HyperFrames が生成したプロジェクト規約。`video/` 内の作業ではそれにも従う。
 - HyperFrames CLI はリポジトリ直下の `package.json` で固定（`npx hyperframes`）。更新は `bash scripts/setup.sh --update`。
-- ユーザーに見せる成果物（静止画・MP4）は、作業ブランチにコミット・push してから案内する。
+- 成果物（静止画・MP4）はローカルのファイルパスで案内する（Git には入れない）。

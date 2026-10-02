@@ -11,6 +11,7 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+TEMP = ROOT / "temp"  # 一時ファイル置き場（Git 管理外）
 VIDEO_EXT = {".mp4", ".mov", ".m4v", ".webm", ".mkv", ".avi"}
 IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".avif", ".gif", ".bmp", ".tif", ".tiff"}
 AUDIO_EXT = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac"}
