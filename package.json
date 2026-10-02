@@ -1,0 +1,23 @@
+{
+  "name": "tiktok-product-video",
+  "private": true,
+  "type": "module",
+  "description": "TikTok Shop affiliate product video studio (HyperFrames-first, Remotion optional)",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "doctor": "bash scripts/setup.sh --check",
+    "analyze": "python3 scripts/analyze_reference.py",
+    "product": "python3 scripts/inspect_product.py",
+    "beatgrid": "python3 scripts/beatgrid.py",
+    "stills": "node scripts/storyboard_stills.mjs",
+    "new-video": "node scripts/new_video.mjs",
+    "review": "python3 scripts/review_video.py",
+    "archive": "bash scripts/archive.sh"
+  },
+  "devDependencies": {
+    "hyperframes": "0.8.107"
+  }
+}

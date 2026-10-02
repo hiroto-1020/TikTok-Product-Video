@@ -1,0 +1,20 @@
+{
+  "name": "tiktok-product-video-remotion",
+  "private": true,
+  "description": "Optional Remotion renderer — only for videos HyperFrames is not suited for (see remotion/README.md)",
+  "scripts": {
+    "studio": "remotion studio",
+    "still": "bash render.sh still",
+    "render": "bash render.sh render"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.532",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.532"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}

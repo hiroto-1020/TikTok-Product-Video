@@ -1,0 +1,38 @@
+# 依存・キャッシュ
+node_modules/
+.hyperframes/
+**/.hyperframes/
+**/node_modules/
+.DS_Store
+*.part
+
+# フォント実体は setup.sh が取得する（fonts.css は管理対象）
+assets/fonts/*.ttf
+assets/fonts/*.otf
+**/assets/fonts/*.ttf
+
+# HyperFrames 作業ファイル
+video/renders/
+video/snapshots/
+preview/storyboard/_src/*/renders/
+preview/storyboard/_src/*/snapshots/
+preview/storyboard/_tmp/
+output/draft/review/_frames/
+
+# Remotion
+remotion/out/
+remotion/build/
+
+# プロジェクト内の素材コピー（scripts が input/ と assets/ から自動で再コピーする）
+preview/storyboard/_src/*/assets/
+video/assets/product/
+video/assets/audio/
+video/assets/fonts/
+video/assets/vendor/
+video/assets/sfx/
+
+# 保管物の中の再取得できるコピー
+archive/**/_src/*/assets/
+archive/**/video/assets/
+__pycache__/
+*.pyc

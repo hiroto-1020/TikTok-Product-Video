@@ -1,0 +1,24 @@
+/*
+ * 日本語フォント（すべて SIL Open Font License・商用利用可）
+ * 実体の .ttf は `bash scripts/setup.sh` が Google Fonts リポジトリから取得します（git 管理外）。
+ * 動画プロジェクトでは new_video.mjs が必要なフォントを video/assets/fonts/ にコピーします。
+ *
+ * 用途の目安
+ *   Noto Sans JP (100–900)      … 字幕・本文・汎用。900 で強い見出し
+ *   Noto Serif JP (200–900)     … 上品・高級感
+ *   Dela Gothic One             … 超極太のインパクト見出し（HOOK向き）
+ *   M PLUS Rounded 1c ExtraBold … やさしい・かわいい
+ *   Zen Kaku Gothic New Black   … モダン・きれいめゴシック
+ *   Zen Maru Gothic Black       … 丸ゴシック・ナチュラル
+ *   Shippori Mincho B1 ExtraBold… コスメ・高級感の明朝
+ *   RocknRoll One / Mochiy Pop One … ポップ・元気
+ */
+@font-face { font-family: "Noto Sans JP"; src: url("NotoSansJP-Variable.ttf") format("truetype"); font-weight: 100 900; font-display: block; }
+@font-face { font-family: "Noto Serif JP"; src: url("NotoSerifJP-Variable.ttf") format("truetype"); font-weight: 200 900; font-display: block; }
+@font-face { font-family: "Dela Gothic One"; src: url("DelaGothicOne-Regular.ttf") format("truetype"); font-weight: 400; font-display: block; }
+@font-face { font-family: "M PLUS Rounded 1c"; src: url("MPLUSRounded1c-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: block; }
+@font-face { font-family: "Zen Kaku Gothic New"; src: url("ZenKakuGothicNew-Black.ttf") format("truetype"); font-weight: 900; font-display: block; }
+@font-face { font-family: "Zen Maru Gothic"; src: url("ZenMaruGothic-Black.ttf") format("truetype"); font-weight: 900; font-display: block; }
+@font-face { font-family: "Shippori Mincho B1"; src: url("ShipporiMinchoB1-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: block; }
+@font-face { font-family: "RocknRoll One"; src: url("RocknRollOne-Regular.ttf") format("truetype"); font-weight: 400; font-display: block; }
+@font-face { font-family: "Mochiy Pop One"; src: url("MochiyPopOne-Regular.ttf") format("truetype"); font-weight: 400; font-display: block; }
